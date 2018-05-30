@@ -16,5 +16,19 @@ namespace TSCLabelPrinterCollection.View
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            FormConfig objConfig = new FormConfig();
+            if (objConfig.ShowDialog(this) == DialogResult.OK)
+            {
+            }
+            objConfig.Dispose();
+        }
     }
 }
