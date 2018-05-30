@@ -30,5 +30,10 @@ namespace TSCLabelPrinterCollection.View
             }
             objConfig.Dispose();
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
+        }
     }
 }

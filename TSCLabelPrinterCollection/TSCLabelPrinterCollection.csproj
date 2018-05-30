@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class\DoService.cs" />
     <Compile Include="Class\TSCPrinter.cs" />
     <Compile Include="Data\Label.cs" />
     <Compile Include="DLL\TSCLIB_DLL.cs" />
