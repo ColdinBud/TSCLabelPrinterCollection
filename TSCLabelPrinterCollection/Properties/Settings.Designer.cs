@@ -49,5 +49,23 @@ namespace TSCLabelPrinterCollection.Properties {
                 return ((int)(this["Interval"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("TEST")]
+        public string FileName {
+            get {
+                return ((string)(this["FileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("TSC TTP-245C")]
+        public string TSCModel {
+            get {
+                return ((string)(this["TSCModel"]));
+            }
+        }
     }
 }

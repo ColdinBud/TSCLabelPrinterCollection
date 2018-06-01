@@ -95,6 +95,7 @@
             this.Controls.Add(this.dataGridView1);
             this.Name = "FormConfig";
             this.Text = "FormConfig";
+            this.Load += new System.EventHandler(this.FormConfig_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
