@@ -12,7 +12,7 @@ namespace TSCLabelPrinterCollection.Class
     {
         string currentTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
 
-        public void PrintOverTSC(string model, List<Label> labelList)
+        public void PrintOverTSC(string model, List<LabelData> labelList)
         {
             if (labelList.Count == 0)
             {
@@ -23,7 +23,7 @@ namespace TSCLabelPrinterCollection.Class
             {
                 TSCLIB_DLL.openport(model);
 
-                foreach (Label l in labelList)
+                foreach (LabelData l in labelList)
                 {
                     TSCLIB_DLL.setup("75", "30", "4", "8", "0", "2", "0");
                     TSCLIB_DLL.clearbuffer();

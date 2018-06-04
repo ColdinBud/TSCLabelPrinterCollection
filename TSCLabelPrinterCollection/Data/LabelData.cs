@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TSCLabelPrinterCollection.Data
 {
-    class Label
+    class LabelData
     {
         public string Device { get; set; }
         public string Drawer { get; set; }

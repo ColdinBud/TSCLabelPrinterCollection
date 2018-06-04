@@ -49,7 +49,8 @@
   <ItemGroup>
     <Compile Include="Class\DoService.cs" />
     <Compile Include="Class\TSCPrinter.cs" />
-    <Compile Include="Data\Label.cs" />
+    <Compile Include="Data\FormularyData.cs" />
+    <Compile Include="Data\LabelData.cs" />
     <Compile Include="DLL\TSCLIB_DLL.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

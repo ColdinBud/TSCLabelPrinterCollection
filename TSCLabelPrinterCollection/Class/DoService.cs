@@ -13,13 +13,13 @@ namespace TSCLabelPrinterCollection.Class
     {
         public static string pubService = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.ToString();
         public static string pubVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public static string filePath = Properties.Settings.Default.FilePath;
+        public static string dateTime = DateTime.Now.ToString("yyyyMMdd");
 
         public static string PrintResult()
         {
             string result = "";
-            string filePath = Properties.Settings.Default.FilePath;
 
-            string dateTime = DateTime.Now.ToString("yyyyMMdd");
             string fileDateFormat = DateTime.Now.ToString("M-d-yyyy");
 
             Directory.CreateDirectory($"{filePath}\\{dateTime}");
@@ -48,92 +48,118 @@ namespace TSCLabelPrinterCollection.Class
             }
             finally
             {
-                DirectoryInfo d = new DirectoryInfo(filePath);
+                //DirectoryInfo d = new DirectoryInfo(filePath);
                 string[] csvList = Directory.GetFiles(filePath, "*.csv", SearchOption.TopDirectoryOnly);
 
-                string time = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                result = ProcessCsvList(csvList);
+            }
 
-                if (csvList.Length > 0)
+            return result;
+        }
+
+        public static string ProcessCsvList(string[] csvList, bool copy = false)
+        {
+            string result = "";
+            string time = DateTime.Now.ToString("HH:mm:ss");
+
+            int countCsv = 0;
+            if (csvList.Length > 0)
+            {
+                //FileInfo file = d.GetFiles("*.csv")[0];
+
+                //var csv = File.ReadAllText(file.FullName);
+                //result += file.FullName;
+
+                string fileName = csvList[countCsv].Substring(csvList[countCsv].LastIndexOf('\\') + 1);
+                var csv = File.ReadAllText(csvList[countCsv]);
+                result += $"資料處理中 - {csvList[countCsv]}\r\n";
+
+                string[] propNames = null;
+                List<string[]> rows = new List<string[]>();
+                foreach (var line in CsvReader.ParseLines(csv))
                 {
-                    FileInfo file = d.GetFiles("*.csv")[0];
-
-                    var csv = File.ReadAllText(file.FullName);
-
-                    result += file.FullName;
-
-                    string[] propNames = null;
-                    List<string[]> rows = new List<string[]>();
-                    foreach (var line in CsvReader.ParseLines(csv))
+                    string[] strArray = CsvReader.ParseFields(line).ToArray();
+                    if (propNames == null)
                     {
-                        string[] strArray = CsvReader.ParseFields(line).ToArray();
-                        if (propNames == null)
-                        {
-                            propNames = strArray;
-                        }
-                        else
-                        {
-                            rows.Add(strArray);
-                        }
-                    }
-
-                    List<Label> labelList = new List<Label>();
-                    for (int r = 0; r < rows.Count; r++)
-                    {
-                        Label label = new Label();
-                        var cells = rows[r];
-                        for (int c = 0; c < cells.Length; c++)
-                        {
-                            switch (c)
-                            {
-                                case 0:
-                                    label.Device = cells[c];
-                                    break;
-                                case 1:
-                                    label.Drawer = cells[c];
-                                    break;
-                                case 2:
-                                    label.MedID = cells[c];
-                                    break;
-                                case 3:
-                                    label.MedName = cells[c];
-                                    break;
-                                case 12:
-                                    label.Amount = cells[c];
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        if (!(string.IsNullOrEmpty(label.MedID)))
-                        {
-                            labelList.Add(label);
-                        }
-                    }
-
-                    result += $"{time} - File: {file.FullName}\r\n";
-                    result += $"筆數: {labelList.Count}";
-
-                    if (labelList.Count > 0)
-                    {
-                        string model = Properties.Settings.Default.TSCModel;
-                        //new TSCPrinter().PrintOverTSC(model, labelList);
-                    }
-
-                    if (!File.Exists(filePath + "\\" + dateTime + "\\" + file.Name))
-                    {
-                        File.Move(file.FullName, filePath + "\\" + dateTime + "\\" + file.Name);
+                        propNames = strArray;
                     }
                     else
                     {
-                        string nowTime = DateTime.Now.ToString("HHmm");
-                        File.Move(file.FullName, filePath + "\\" + dateTime + "\\" + nowTime + file.Name);
+                        rows.Add(strArray);
                     }
+                }
 
+                List<LabelData> labelList = new List<LabelData>();
+                for (int r = 0; r < rows.Count; r++)
+                {
+                    LabelData label = new LabelData();
+                    var cells = rows[r];
+                    for (int c = 0; c < cells.Length; c++)
+                    {
+                        switch (c)
+                        {
+                            case 0:
+                                label.Device = cells[c];
+                                break;
+                            case 1:
+                                label.Drawer = cells[c];
+                                break;
+                            case 2:
+                                label.MedID = cells[c];
+                                break;
+                            case 3:
+                                label.MedName = cells[c];
+                                break;
+                            case 12:
+                                label.Amount = cells[c];
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (!(string.IsNullOrEmpty(label.MedID)))
+                    {
+                        labelList.Add(label);
+                    }
+                }
+
+                result += $"{time}:    資料處理完畢 - {csvList[countCsv]}\r\n";
+                result += $"筆數: {labelList.Count}\r\n";
+
+                if (labelList.Count > 0)
+                {
+                    string model = Properties.Settings.Default.TSCModel;
+                    //new TSCPrinter().PrintOverTSC(model, labelList);
+                }
+
+                if (!File.Exists(filePath + "\\" + dateTime + "\\" + fileName))
+                {
+                    if (copy)
+                    {
+                        File.Copy(csvList[countCsv], filePath + "\\" + dateTime + "\\" + fileName);
+                    }
+                    else
+                    {
+                        File.Move(csvList[countCsv], filePath + "\\" + dateTime + "\\" + fileName);
+                    }
                 }
                 else
                 {
-                    result += $"{time} - 沒有更新資料";
+                    string nowTime = DateTime.Now.ToString("HHmm");
+                    if (copy)
+                    {
+                        File.Copy(csvList[countCsv], filePath + "\\" + dateTime + "\\" + nowTime + fileName);
+                    }
+                    else
+                    {
+                        File.Move(csvList[countCsv], filePath + "\\" + dateTime + "\\" + nowTime + fileName);
+                    }
                 }
+                countCsv++;
+            }
+            else
+            {
+                result += $"沒有更新資料\r\n";
             }
 
             return result;
