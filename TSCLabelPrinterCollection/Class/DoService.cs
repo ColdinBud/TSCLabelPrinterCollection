@@ -129,7 +129,7 @@ namespace TSCLabelPrinterCollection.Class
                 if (labelList.Count > 0)
                 {
                     string model = Properties.Settings.Default.TSCModel;
-                    //new TSCPrinter().PrintOverTSC(model, labelList);
+                    new TSCPrinter().PrintOverTSC(model, labelList);
                 }
 
                 if (!File.Exists(filePath + "\\" + dateTime + "\\" + fileName))

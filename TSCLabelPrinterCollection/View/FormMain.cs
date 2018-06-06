@@ -27,6 +27,35 @@ namespace TSCLabelPrinterCollection.View
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            formularyList = LoadFormularyList();
+
+            string path = Directory.GetCurrentDirectory();
+            var deviceCsv = File.ReadAllText($"{path}\\Device List.csv");
+            string[] devicePropNames = null;
+            List<string[]> deviceRows = new List<string[]>();
+            foreach (var line in CsvReader.ParseLines(deviceCsv))
+            {
+                string[] strArray = CsvReader.ParseFields(line).ToArray();
+                if (devicePropNames == null)
+                {
+                    devicePropNames = strArray;
+                }
+                else
+                {
+                    deviceRows.Add(strArray);
+                }
+            }
+
+            for (int r = 0; r < deviceRows.Count; r++)
+            {
+                deviceList.Add(deviceRows[r][0]);
+            }
+        }
+
+        private List<FormularyData> LoadFormularyList()
+        {
+            List<FormularyData> formularyList = new List<FormularyData>();
+
             string path = Directory.GetCurrentDirectory();
             var csv = File.ReadAllText($"{path}\\Formulary Report.csv");
             string[] propNames = null;
@@ -80,26 +109,7 @@ namespace TSCLabelPrinterCollection.View
                 formularyList.Add(formularyData);
             }
 
-            var deviceCsv = File.ReadAllText($"{path}\\Device List.csv");
-            string[] devicePropNames = null;
-            List<string[]> deviceRows = new List<string[]>();
-            foreach (var line in CsvReader.ParseLines(deviceCsv))
-            {
-                string[] strArray = CsvReader.ParseFields(line).ToArray();
-                if (devicePropNames == null)
-                {
-                    devicePropNames = strArray;
-                }
-                else
-                {
-                    deviceRows.Add(strArray);
-                }
-            }
-
-            for (int r = 0; r < deviceRows.Count; r++)
-            {
-                deviceList.Add(deviceRows[r][0]);
-            }
+            return formularyList;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -271,6 +281,30 @@ namespace TSCLabelPrinterCollection.View
             {
                 string[] csvList = { dialog.FileName };
                 richTextBox1.Text += DoService.ProcessCsvList(csvList, true);
+            }
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+
+            dialog.Title = "請選擇 Station 檔案";
+            dialog.InitialDirectory = ".\\";
+            dialog.Filter = "csv files (*.*)|*.csv";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                if (dialog.FileName.IndexOf("Formulary Report") == -1)
+                {
+                    MessageBox.Show("藥品清單上傳失敗，請選擇正確的檔案");
+                }
+                else
+                {
+                    File.Copy(dialog.FileName, Directory.GetCurrentDirectory() + "\\Formulary Report.csv", true);
+                    formularyList = LoadFormularyList();
+                    Invalidate();
+                    Refresh();
+                    MessageBox.Show("藥品清單上傳成功!!!");
+                }
             }
         }
     }
