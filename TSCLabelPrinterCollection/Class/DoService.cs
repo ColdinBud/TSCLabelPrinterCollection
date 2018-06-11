@@ -51,7 +51,7 @@ namespace TSCLabelPrinterCollection.Class
                 //DirectoryInfo d = new DirectoryInfo(filePath);
                 string[] csvList = Directory.GetFiles(filePath, "*.csv", SearchOption.TopDirectoryOnly);
 
-                result = ProcessCsvList(csvList);
+                result += ProcessCsvList(csvList);
             }
 
             return result;

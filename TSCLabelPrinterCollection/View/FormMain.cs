@@ -30,7 +30,7 @@ namespace TSCLabelPrinterCollection.View
             formularyList = LoadFormularyList();
 
             string path = Directory.GetCurrentDirectory();
-            var deviceCsv = File.ReadAllText($"{path}\\Device List.csv");
+            var deviceCsv = File.ReadAllText($"{path}\\設定資料\\Device List.csv");
             string[] devicePropNames = null;
             List<string[]> deviceRows = new List<string[]>();
             foreach (var line in CsvReader.ParseLines(deviceCsv))
@@ -50,6 +50,8 @@ namespace TSCLabelPrinterCollection.View
             {
                 deviceList.Add(deviceRows[r][0]);
             }
+
+            this.button4_Click(sender, e);
         }
 
         private List<FormularyData> LoadFormularyList()
@@ -57,7 +59,7 @@ namespace TSCLabelPrinterCollection.View
             List<FormularyData> formularyList = new List<FormularyData>();
 
             string path = Directory.GetCurrentDirectory();
-            var csv = File.ReadAllText($"{path}\\Formulary Report.csv");
+            var csv = File.ReadAllText($"{path}\\設定資料\\Formulary Report.csv");
             string[] propNames = null;
             List<string[]> rows = new List<string[]>();
             foreach (var line in CsvReader.ParseLines(csv))
@@ -121,9 +123,9 @@ namespace TSCLabelPrinterCollection.View
             richTextBox1.Text += string.IsNullOrEmpty(richTextBox1.Text) ? "\r\n" : "";
 
             string printResult = DoService.PrintResult();
-            string res = string.IsNullOrEmpty(printResult) ? "沒有新資料" : printResult;
+            //string res = string.IsNullOrEmpty(printResult) ? "沒有新資料" : printResult;
 
-            richTextBox1.Text += $"{DateTime.Now.ToString("HH:mm:ss")}:    {res}\r\n"; ;
+            richTextBox1.Text += $"{DateTime.Now.ToString("HH:mm:ss")}:    {printResult}\r\n"; ;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -230,21 +232,24 @@ namespace TSCLabelPrinterCollection.View
 
         private void button5_Click(object sender, EventArgs e)
         {
-            panel2.Controls.Remove(deviceLabelList[deviceLabelList.Count - 1]);
-            panel2.Controls.Remove(deviceComboBoxList[deviceComboBoxList.Count - 1]);
-            panel2.Controls.Remove(medIDLabelList[medIDLabelList.Count - 1]);
-            panel2.Controls.Remove(medIDTextBoxList[medIDTextBoxList.Count - 1]);
-            panel2.Controls.Remove(amountLabelList[amountLabelList.Count - 1]);
-            panel2.Controls.Remove(amountTextBoxList[amountTextBoxList.Count - 1]);
-            panel2.Controls.Remove(medNameLabelList[medNameLabelList.Count - 1]);
+            if (deviceLabelList.Count > 0)
+            {
+                panel2.Controls.Remove(deviceLabelList[deviceLabelList.Count - 1]);
+                panel2.Controls.Remove(deviceComboBoxList[deviceComboBoxList.Count - 1]);
+                panel2.Controls.Remove(medIDLabelList[medIDLabelList.Count - 1]);
+                panel2.Controls.Remove(medIDTextBoxList[medIDTextBoxList.Count - 1]);
+                panel2.Controls.Remove(amountLabelList[amountLabelList.Count - 1]);
+                panel2.Controls.Remove(amountTextBoxList[amountTextBoxList.Count - 1]);
+                panel2.Controls.Remove(medNameLabelList[medNameLabelList.Count - 1]);
 
-            deviceLabelList.RemoveAt(deviceLabelList.Count - 1);
-            deviceComboBoxList.RemoveAt(deviceComboBoxList.Count - 1);
-            medIDLabelList.RemoveAt(medIDLabelList.Count - 1);
-            medIDTextBoxList.RemoveAt(medIDTextBoxList.Count - 1);
-            amountLabelList.RemoveAt(amountLabelList.Count - 1);
-            amountTextBoxList.RemoveAt(amountTextBoxList.Count - 1);
-            medNameLabelList.RemoveAt(medNameLabelList.Count - 1);
+                deviceLabelList.RemoveAt(deviceLabelList.Count - 1);
+                deviceComboBoxList.RemoveAt(deviceComboBoxList.Count - 1);
+                medIDLabelList.RemoveAt(medIDLabelList.Count - 1);
+                medIDTextBoxList.RemoveAt(medIDTextBoxList.Count - 1);
+                amountLabelList.RemoveAt(amountLabelList.Count - 1);
+                amountTextBoxList.RemoveAt(amountTextBoxList.Count - 1);
+                medNameLabelList.RemoveAt(medNameLabelList.Count - 1);
+            }
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -260,13 +265,14 @@ namespace TSCLabelPrinterCollection.View
                 if (!(string.IsNullOrEmpty(device) || string.IsNullOrEmpty(medID) ||
                     string.IsNullOrEmpty(amount) || string.IsNullOrEmpty(medName)))
                 {
-                    printLabelList.Add(new LabelData { Device = device, MedID = medID, MedName = medName, Amount = amount });
+                    printLabelList.Add(new LabelData { Device = device, MedID = medID, MedName = medName, Amount = amount, Drawer ="" });
                 }
             }
 
             if (printLabelList.Count > 0)
             {
-                new TSCPrinter().PrintOverTSC(Properties.Settings.Default.TSCModel, printLabelList);
+                string model = Properties.Settings.Default.TSCModel;
+                new TSCPrinter().PrintOverTSC(model, printLabelList);
             }
         }
 
@@ -299,7 +305,7 @@ namespace TSCLabelPrinterCollection.View
                 }
                 else
                 {
-                    File.Copy(dialog.FileName, Directory.GetCurrentDirectory() + "\\Formulary Report.csv", true);
+                    File.Copy(dialog.FileName, Directory.GetCurrentDirectory() + "\\設定資料\\Formulary Report.csv", true);
                     formularyList = LoadFormularyList();
                     Invalidate();
                     Refresh();
