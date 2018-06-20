@@ -52,6 +52,10 @@ namespace TSCLabelPrinterCollection.View
             }
 
             this.button4_Click(sender, e);
+
+            string[] arrString = (string[])deviceList.ToArray(typeof(string));
+            comboBox1.Items.Clear();
+            comboBox1.Items.AddRange(arrString);
         }
 
         private List<FormularyData> LoadFormularyList()
@@ -112,6 +116,52 @@ namespace TSCLabelPrinterCollection.View
             }
 
             return formularyList;
+        }
+
+        private List<LabelData> LoadControlledDrugList(string area)
+        {
+            List<LabelData> controlledDrugList = new List<LabelData>();
+
+            string path = Directory.GetCurrentDirectory();
+            var csv = File.ReadAllText($"{path}\\設定資料\\{area}.csv");
+            string[] propNames = null;
+            List<string[]> rows = new List<string[]>();
+            foreach (var line in CsvReader.ParseLines(csv))
+            {
+                string[] strArray = CsvReader.ParseFields(line).ToArray();
+                if (propNames == null)
+                {
+                    propNames = strArray;
+                }
+                else
+                {
+                    rows.Add(strArray);
+                }
+            }
+
+            for (int r = 0; r < rows.Count; r++)
+            {
+                LabelData labelData = new LabelData();
+                var cells = rows[r];
+                for (int c = 0; c < cells.Length; c++)
+                {
+                    switch (c)
+                    {
+                        case 0:
+                            labelData.MedID = cells[c];
+                            break;
+                        case 1:
+                            labelData.MedName = cells[c];
+                            break;
+                        default:
+                            break;
+                    }
+                    labelData.Device = area;
+                }
+                controlledDrugList.Add(labelData);
+            }
+
+            return controlledDrugList;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -311,6 +361,96 @@ namespace TSCLabelPrinterCollection.View
                     Refresh();
                     MessageBox.Show("藥品清單上傳成功!!!");
                 }
+            }
+        }
+
+        List<Label> controlledDrugMedIDTitleLabelList = new List<Label>();
+        List<Label> controlledDrugMedIDLabelList = new List<Label>();
+        List<Label> controlledDrugAmountLabelList = new List<Label>();
+        List<TextBox> controlledDrugAmountTextBoxList = new List<TextBox>();
+        List<Label> controlledDrugMedNameLabelList = new List<Label>();
+
+        List<LabelData> controlledDrugList = new List<LabelData>();
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                panel3.Controls.Clear();
+                controlledDrugList.Clear();
+                controlledDrugList = LoadControlledDrugList(this.comboBox1.Text);
+            }
+            catch
+            {
+                MessageBox.Show("不存在管藥清單");
+                controlledDrugList.Clear();
+                panel3.Controls.Clear();
+            }
+            finally
+            {
+                for (int l = 0; l < controlledDrugList.Count; l++)
+                {
+                    controlledDrugMedIDTitleLabelList.Add(new Label());
+                    controlledDrugMedIDLabelList.Add(new Label());
+                    controlledDrugAmountLabelList.Add(new Label());
+                    controlledDrugAmountTextBoxList.Add(new TextBox());
+                    controlledDrugMedNameLabelList.Add(new Label());
+
+                    controlledDrugMedIDTitleLabelList[l].Text = "藥品八碼:";
+                    controlledDrugMedIDTitleLabelList[l].Bounds = new Rectangle(20, (l * 30), 60, 30);
+
+                    controlledDrugMedIDLabelList[l].Text = controlledDrugList[l].MedID;
+                    controlledDrugMedIDLabelList[l].Bounds = new Rectangle(80, (l * 30), 80, 30);
+
+                    controlledDrugAmountLabelList[l].Text = "數量:";
+                    controlledDrugAmountLabelList[l].Bounds = new Rectangle(180, (l * 30), 40, 30);
+
+                    controlledDrugAmountTextBoxList[l].Bounds = new Rectangle(220, (l * 30), 50, 30);
+
+                    controlledDrugMedNameLabelList[l].Text = controlledDrugList[l].MedName;
+                    controlledDrugMedNameLabelList[l].Bounds = new Rectangle(320, (l * 30), 440, 30);
+
+
+                    panel3.Controls.Add(controlledDrugMedIDTitleLabelList[l]);
+                    panel3.Controls.Add(controlledDrugMedIDLabelList[l]);
+                    panel3.Controls.Add(controlledDrugAmountLabelList[l]);
+                    panel3.Controls.Add(controlledDrugAmountTextBoxList[l]);
+                    panel3.Controls.Add(controlledDrugMedNameLabelList[l]);
+                }
+            }
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            for (int l = 0; l < controlledDrugList.Count; l++)
+            {
+                controlledDrugList[l].Drawer = "";
+                controlledDrugList[l].Amount = controlledDrugAmountTextBoxList[l].Text;
+            }
+
+            controlledDrugList.RemoveAll(x => string.IsNullOrEmpty(x.Amount));
+
+            if (controlledDrugList.Count > 0)
+            {
+                string model = Properties.Settings.Default.TSCModel;
+                new TSCPrinter().PrintOverTSC(model, controlledDrugList);
+            }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+
+            dialog.Title = "請選擇區域管制藥檔案";
+            dialog.InitialDirectory = ".\\";
+            dialog.Filter = "csv files (*.*)|*.csv";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                File.Copy(dialog.FileName, $"{Directory.GetCurrentDirectory()}\\設定資料\\{dialog.SafeFileName}", true);
+                formularyList = LoadFormularyList();
+                Invalidate();
+                Refresh();
+                MessageBox.Show("區域管制藥清單上傳成功!!!");
             }
         }
     }
