@@ -27,7 +27,7 @@ namespace TSCLabelPrinterCollection.Class
             try
             {
                 string[] sourceList = Directory.GetFiles(Properties.Settings.Default.SourcePath,
-                    Properties.Settings.Default.FilePath + "*" + fileDateFormat + "*.csv", SearchOption.TopDirectoryOnly);
+                    Properties.Settings.Default.FileName + "*" + fileDateFormat + "*.csv", SearchOption.TopDirectoryOnly);
 
                 foreach (string str in sourceList)
                 {
