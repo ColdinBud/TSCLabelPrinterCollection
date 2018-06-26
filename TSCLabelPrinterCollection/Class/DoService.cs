@@ -14,12 +14,12 @@ namespace TSCLabelPrinterCollection.Class
         public static string pubService = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.ToString();
         public static string pubVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         public static string filePath = Properties.Settings.Default.FilePath;
-        public static string dateTime = DateTime.Now.ToString("yyyyMMdd");
 
         public static string PrintResult()
         {
             string result = "";
 
+            string dateTime = DateTime.Now.ToString("yyyyMMdd");
             string fileDateFormat = DateTime.Now.ToString("M-d-yyyy");
 
             Directory.CreateDirectory($"{filePath}\\{dateTime}");
@@ -60,6 +60,7 @@ namespace TSCLabelPrinterCollection.Class
         public static string ProcessCsvList(string[] csvList, bool copy = false)
         {
             string result = "";
+            string dateTime = DateTime.Now.ToString("yyyyMMdd");
             string time = DateTime.Now.ToString("HH:mm:ss");
 
             int countCsv = 0;
